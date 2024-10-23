@@ -1,8 +1,33 @@
-name: Hello World
-on:  push
+name: hello-world
+on: push
 jobs:
-  my-job:
-    runs-on: ubuntu-latest
+  cont-integration:
+    runs-on: ubuntu-latest #github-runner
     steps:
-      - name: my-step
-        run: echo "Hello, World! shanmukh P"
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: secrets scanning
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       
+      - name: secrets scanning
+        run: echo "secrets scanning using gitleaks"      
+       
+      - name: IaC Scanning
+        run: echo "IaC Scanning using Checkov"
+
+  cont-deployment:
+    needs: [cont-integration]
+    runs-on: ubuntu-latest #github-runner
+    steps:
+      - name: Deploy Staging
+        run: echo "Deploy Staging in EKS"
+       
+      - name: Infra scanning
+        run: echo "Infra scanning using OpenVAS"      
+       
+      - name: Deploy Prod
+        run: echo "Deploy Prod in EKS"
